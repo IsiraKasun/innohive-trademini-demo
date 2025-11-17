@@ -1,0 +1,19 @@
+# Vite React frontend
+node_modules/
+dist/
+.env
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Logs
+logs/
+*.log
+
+# OS / misc
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/

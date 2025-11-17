@@ -1,0 +1,148 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg: #F5F5F5;
+  /* light background */
+  --text: #0b1220;
+  --white-text: #ffffff;
+  --muted-text: #475569;
+  --border: #68a8f7;
+  --header-bg: #add4dbe0;
+  --main-bg: #c3d3e2;
+  --footer-bg: #add4dbe0;
+  --card-bg: #0b547ee3;
+  --menu-title: #0b1220;
+  --menu-sub-title: #121b2cf5;
+  --surface: #b2dcec;
+  --btn-bg: #2563eb;
+  /* light accent blue */
+  --btn-bg-hover: #1d4ed8;
+  --btn-text: #ffffff;
+  --up: #388E3C;
+  /* light up */
+  --down: #D32F2F;
+  /* light down */
+}
+
+.theme-dark {
+  --bg: #1E1E1E;
+  /* dark background */
+  --text: #e2e8f0;
+  --muted-text: #94a3b8;
+  --border: #334155;
+  --header-bg: #02272e;
+  --main-bg: #02162edc;
+  --menu-title: #d8e2f7ee;
+  --menu-sub-title: #b8c4daf5;
+  --footer-bg: #02272e;
+  --surface: #151a23;
+  --card-bg: #5842d66e;
+  --btn-bg: #0ea5e9;
+  /* dark accent sky */
+  --btn-bg-hover: #0284c7;
+  --btn-text: #0b1220;
+  --up: #6FBF73;
+  /* dark up */
+  --down: #D97B6C;
+  /* dark down */
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--text);
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+}
+
+.btn {
+  @apply inline-flex items-center justify-center px-4 py-2 rounded-md transition-colors;
+  background-color: var(--btn-bg);
+  color: var(--btn-text);
+}
+
+.btn:hover {
+  background-color: var(--btn-bg-hover);
+}
+
+.btn:disabled,
+.btn[disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background-color: var(--btn-bg);
+}
+
+.card {
+  @apply rounded-lg shadow-sm hover:shadow-md transition-all backdrop-blur;
+  background-color: var(--card-bg);
+  border: 1px solid var(--border);
+}
+
+.input {
+  @apply w-full rounded-md px-3 py-2 outline-none focus:ring-2 border;
+  background-color: color-mix(in oklab, var(--bg) 98%, black 2%);
+  color: var(--text);
+  box-shadow: 0 0 0 0 rgba(0, 0, 0, 0);
+}
+
+.input:focus {
+  box-shadow: 0 0 0 2px color-mix(in oklab, var(--btn-bg) 30%, white 70%);
+}
+
+.text-muted {
+  color: var(--muted-text);
+}
+
+.text-up {
+  color: var(--up);
+}
+
+.text-down {
+  color: var(--down);
+}
+
+/* Layout/theme helpers (used instead of inline styles) */
+.app-header {
+  border-bottom: 1px solid var(--border);
+  background-color: var(--header-bg);
+}
+
+.app-main {
+  background-color: var(--main-bg);
+}
+
+.app-footer {
+  border-top: 1px solid var(--border);
+  background-color: var(--footer-bg);
+}
+
+.logo-text {
+  font-size: 1.75rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+/* Background image wrapper and overlays for auth pages */
+.bg-wrapper {
+  position: relative;
+}
+
+.menu-title {
+  color: var(--menu-title);
+}
+
+.menu-sub-title {
+  color: var(--menu-sub-title);
+}
+
+.bg-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.white-text {
+  color: var(--white-text);
+}
