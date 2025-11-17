@@ -66,8 +66,6 @@ Monorepo with separate **frontend** and **backend** folders implementing a live 
 - `competitions.json` – dummy competitions and initial traders with scores.
 - `users.json` – registered users with hashed passwords and profile metadata.
 
----
-
 ## 2. Setup Instructions
 
 ### 2.1 Backend – Development
@@ -133,7 +131,6 @@ This generates a production bundle in `frontend/dist`. Serve it using:
 
 Ensure the frontend can reach the backend by setting `VITE_API_BASE` to your deployed API URL before building.
 
----
 
 ## 3. Application Flow
 
@@ -158,8 +155,6 @@ Ensure the frontend can reach the backend by setting `VITE_API_BASE` to your dep
 
 4. **Logout**
    - In `App.tsx`, clicking **Logout** calls `logout()` from `useAuth`, which clears token/username from state and `localStorage`, then navigates back to `/login`.
-
-> Note: Authentication tokens are now enforced on the backend for competition-related endpoints. A valid JWT must be sent in the `Authorization` header for these routes to succeed.
 
 ### 3.2 Dashboard and competitions flow
 
@@ -190,8 +185,6 @@ Ensure the frontend can reach the backend by setting `VITE_API_BASE` to your dep
 - `useTheme` stores the current theme (`light` / `dark`) in `localStorage` and toggles a `theme-dark` class on `<html>`.
 - `index.css` defines CSS variables for both light and dark themes (backgrounds, card colors, menu titles, etc.).
 - Login/Register pages choose `background-light.png` or `background-dark.png` based on the current theme.
-
----
 
 ## 4. Frontend–Backend Communication
 
@@ -263,8 +256,6 @@ All endpoints are relative to the backend base URL, e.g. `http://localhost:4000`
   - Returns the sorted leaderboard for a competition:
   - `{ id, name, traders: [{ name, score }, ...] }` sorted by `score` descending.
 
----
-
 ## 6. Dummy Data & Persistence
 
 ### 6.1 Competitions and traders (`backend/data/competitions.json`)
@@ -287,8 +278,6 @@ All endpoints are relative to the backend base URL, e.g. `http://localhost:4000`
 - Login validates the provided password with `bcrypt.compareSync`.
 
 > This project deliberately uses JSON files as a lightweight persistence layer instead of a database to simplify setup and keep the focus on API design, auth flow, and real-time UI.
-
----
 
 ## 7. Technologies & Libraries
 
@@ -332,17 +321,15 @@ All endpoints are relative to the backend base URL, e.g. `http://localhost:4000`
   - `cors` – Cross-Origin Resource Sharing.
   - Node core libs: `fs`, `path`, `http`, `url` – JSON data persistence and server wiring.
 
----
-
 ## 8. Notes on the Implementation Approach
 
 - **Monorepo structure** keeps frontend and backend together while still clearly separated into `frontend/` and `backend/` folders.
 - **Frontend approach** focuses on:
   - Clean separation of pages vs. reusable components.
-  - Hooks (`useAuth`, `useTheme`, `useWebSocket`) to isolate cross-cutting concerns.
+  - Hooks (`useAuth`, `useTheme`, `useWebSocket`) to isolate and reusing concerns.
   - A themed layout with shared header/footer and consistent styling across pages.
 - **Backend approach** focuses on:
   - Clear, small set of REST endpoints that match the frontend flows.
   - Lightweight JSON-based persistence (`competitions.json`, `users.json`) suitable for demos.
   - A simple WebSocket broadcaster that continuously drives a dynamic leaderboard.
-- **Communication design** keeps the REST API responsible for CRUD-style operations and initial data, while WebSocket is used exclusively for live score streaming, making the UI feel responsive and “trading-like” without complex infrastructure.
+- **Communication design** keeps the REST API responsible for CRUD operations and initial data, while WebSocket is used exclusively for live score streaming, making the UI feel responsive.
