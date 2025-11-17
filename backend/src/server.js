@@ -57,11 +57,28 @@ app.use(express.json());
 // JWT secret (use environment vars in production)
 const JWT_SECRET = process.env.JWT_SECRET || "innohive";
 
+// Simple JWT auth middleware for protected routes
+function requireAuth(req, res, next) {
+  const authHeader = req.headers.authorization || "";
+  const [scheme, token] = authHeader.split(" ");
+
+  if (scheme !== "Bearer" || !token) {
+    return res.status(401).json({ message: "missing or invalid Authorization header" });
+  }
+
+  try {
+    const payload = jwt.verify(token, JWT_SECRET);
+    req.user = payload; // e.g. { sub: username, iat, exp }
+    next();
+  } catch (err) {
+    return res.status(401).json({ message: "invalid or expired token" });
+  }
+}
+
 // -------- Auth Endpoints --------
 // Register a user and return a mock token
 app.post("/register", (req, res) => {
-  const { username, password, firstName, lastName, email, dob } =
-    req.body || {};
+  const { username, password, firstName, lastName, email, dob } = req.body || {};
 
   const errors = {};
 
@@ -142,7 +159,7 @@ app.post("/login", (req, res) => {
 
 // -------- Competitions Endpoints --------
 // Return competitions list with participant counts and timing
-app.get("/competitions", (req, res) => {
+app.get("/competitions", requireAuth, (req, res) => {
   const list = store.competitions.map((c) => ({
     id: c.id,
     name: c.name,
@@ -156,7 +173,7 @@ app.get("/competitions", (req, res) => {
 });
 
 // Return competition IDs that the given user has joined
-app.post("/my-competitions", (req, res) => {
+app.post("/my-competitions", requireAuth, (req, res) => {
   const { username } = req.body || {};
   if (!username) return res.status(400).json({ message: "username required" });
 
@@ -171,7 +188,7 @@ app.post("/my-competitions", (req, res) => {
 });
 
 // Join a competition (simulate). Adds user to traders if not already present.
-app.post("/join", (req, res) => {
+app.post("/join", requireAuth, (req, res) => {
   const { competitionId, username } = req.body || {};
   if (!competitionId || !username)
     return res
@@ -192,7 +209,7 @@ app.post("/join", (req, res) => {
 });
 
 // Optional: endpoint to get a competition leaderboard
-app.get("/competitions/:id/leaderboard", (req, res) => {
+app.get("/competitions/:id/leaderboard", requireAuth, (req, res) => {
   const id = req.params.id;
   const comp = store.competitions.find((c) => c.id === id);
   if (!comp) return res.status(404).json({ message: "competition not found" });

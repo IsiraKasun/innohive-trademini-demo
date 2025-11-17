@@ -151,15 +151,15 @@ Ensure the frontend can reach the backend by setting `VITE_API_BASE` to your dep
    - `LoginForm` calls `login()` from `services/api.ts` (`POST /login`).
    - On success, `useAuth` stores token + username and redirects to `/dashboard`.
 
-3. **Protected routes**
+3. **Protected routes (frontend + backend)**
    - `router.tsx` wraps `Dashboard` and `CompetitionLeaderboard` with `ProtectedRoute`.
-   - `ProtectedRoute` checks for a non-null `token` from `useAuth`.
-   - If not authenticated, user is `Navigate`d to `/login`.
+   - `ProtectedRoute` checks for a non-null `token` from `useAuth` and redirects unauthenticated users to `/login`.
+   - On the backend, competition-related endpoints now require a valid JWT in the `Authorization: Bearer <token>` header (see section 5).
 
 4. **Logout**
    - In `App.tsx`, clicking **Logout** calls `logout()` from `useAuth`, which clears token/username from state and `localStorage`, then navigates back to `/login`.
 
-> Note: Authentication tokens are used mainly for client-side gating; the backend endpoints do not yet enforce JWT validation. This keeps the focus on UX and real-time behaviour rather than full access control.
+> Note: Authentication tokens are now enforced on the backend for competition-related endpoints. A valid JWT must be sent in the `Authorization` header for these routes to succeed.
 
 ### 3.2 Dashboard and competitions flow
 

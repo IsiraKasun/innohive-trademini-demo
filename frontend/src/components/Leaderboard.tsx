@@ -49,7 +49,7 @@ export default function Leaderboard({ traders }: Props) {
             <div className="flex justify-center">
               <div className="card p-6 sm:p-8 flex flex-col items-center text-center bg-orange-400 max-w-md w-full">
                 <div className="text-4xl mb-2">🏆🥇</div>
-                <div className="text-lg menu-sub-title mb-1 tracking-wide uppercase">
+                <div className="text-lg menu-sub-title mb-1 font-bold tracking-wide uppercase">
                   Champion
                 </div>
                 <div className="text-2xl menu-sub-title font-semibold mb-1">
@@ -58,7 +58,7 @@ export default function Leaderboard({ traders }: Props) {
                 <div
                   className={
                     "font-bold text-lg " +
-                    (top3[0].score >= 0 ? "text-green-700" : "text-red-700")
+                    (top3[0].score >= 0 ? "text-green-400" : "text-red-700")
                   }
                 >
                   {formatRoi(top3[0].score)}
@@ -79,7 +79,7 @@ export default function Leaderboard({ traders }: Props) {
                     className="card p-4 flex flex-col items-center text-center bg-orange-400/80"
                   >
                     <div className="text-2xl mb-1">{medal}</div>
-                    <div className="text-sm menu-sub-title mb-1">
+                    <div className="text-sm menu-sub-title mb-1 font-bold">
                       Rank {rank}
                     </div>
                     <div className="text-lg menu-sub-title font-semibold mb-1">
@@ -120,7 +120,7 @@ export default function Leaderboard({ traders }: Props) {
                 const globalRank = 4 + pageStartIndex + idx; // global rank across all pages
                 const roi = formatRoi(t.score);
                 const colorClass =
-                  t.score >= 0 ? "text-emerald-400" : "text-rose-400";
+                  t.score >= 0 ? "text-green-400" : "text-red-400";
                 return (
                   <motion.tr
                     key={t.name}
@@ -140,10 +140,10 @@ export default function Leaderboard({ traders }: Props) {
                     <td className="px-4 py-2 text-white font-medium">
                       {t.name}
                     </td>
-                    <td className={`px-4 py-2 text-right ${colorClass}`}>
+                    <td className={`px-4 py-2 text-right font-bold ${colorClass}`}>
                       {t.score.toFixed(2)}
                     </td>
-                    <td className={`px-4 py-2 text-right ${colorClass}`}>
+                    <td className={`px-4 py-2 text-right font-bold ${colorClass}`}>
                       {roi}
                     </td>
                   </motion.tr>
@@ -155,7 +155,7 @@ export default function Leaderboard({ traders }: Props) {
 
         {/* Pagination controls */}
         <div className="flex items-center justify-between px-4 py-2 border-t border-slate-800 text-xs text-slate-400">
-          <div>
+          <div className="menu-sub-title font-bold">
             Page {page} of {totalPages}
           </div>
           <div className="flex items-center gap-2">

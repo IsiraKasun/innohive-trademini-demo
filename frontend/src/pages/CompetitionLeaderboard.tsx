@@ -98,7 +98,7 @@ export default function CompetitionLeaderboard() {
       <button className="btn" onClick={() => navigate(-1)}>
         Back
       </button>
-      <h1 className="text-2xl font-semibold menu-title">
+      <h1 className="text-2xl font-semibold menu-title text-center">
         {data.name} - Leaderboard
       </h1>
       <Leaderboard traders={traders} />

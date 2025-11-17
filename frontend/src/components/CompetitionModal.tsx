@@ -35,7 +35,7 @@ export default function CompetitionModal({
       <div className="card w-full max-w-3xl p-8 relative">
         <button
           type="button"
-          className="absolute right-4 top-4 text-slate-600 hover:text-white"
+          className="absolute right-4 top-4 text-black hover:text-white"
           onClick={onClose}
         >
           ✕

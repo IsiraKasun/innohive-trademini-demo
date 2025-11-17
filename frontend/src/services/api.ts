@@ -7,6 +7,20 @@ export const api = axios.create({
   headers: { 'Content-Type': 'application/json' }
 });
 
+// Attach JWT from localStorage (set by useAuth) to all outgoing requests
+api.interceptors.request.use((config) => {
+  if (typeof window !== 'undefined') {
+    const token = localStorage.getItem('token');
+    if (token) {
+      // Cast to any to avoid AxiosHeaders vs plain object typing issues
+      const headers: any = config.headers || {};
+      headers['Authorization'] = `Bearer ${token}`;
+      config.headers = headers;
+    }
+  }
+  return config;
+});
+
 export interface Competition {
   id: string;
   name: string;
