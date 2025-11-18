@@ -140,10 +140,10 @@ app.post("/register", (req, res) => {
   saveUsers(users);
 
   const token = jwt.sign({ sub: username }, JWT_SECRET, { expiresIn: "7d" });
-  res.json({ token, username });
+  res.json({ token, username, firstName: user.firstName, lastName: user.lastName });
 });
 
-// Login a user and return a mock token
+// Login a user and returning a token
 app.post("/login", (req, res) => {
   const { username, password } = req.body || {};
   if (!username || !password)
@@ -154,7 +154,8 @@ app.post("/login", (req, res) => {
   const ok = bcrypt.compareSync(password, u.passwordHash);
   if (!ok) return res.status(401).json({ message: "invalid credentials" });
   const token = jwt.sign({ sub: username }, JWT_SECRET, { expiresIn: "7d" });
-  res.json({ token, username });
+  console.log(u.firstName);
+  res.json({ token, username, firstName: u.firstName || "", lastName: u.lastName || "" });
 });
 
 // -------- Competitions Endpoints --------
