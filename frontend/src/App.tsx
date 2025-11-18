@@ -1,6 +1,7 @@
 import { Outlet, Link, useNavigate } from "react-router-dom";
 import { useAuth } from "./hooks/useAuth";
 import { useTheme } from "./hooks/useTheme";
+import { FaSun, FaMoon, FaSignOutAlt } from "react-icons/fa";
 
 export default function App() {
   const { token, firstName, lastName, logout } = useAuth();
@@ -14,25 +15,30 @@ export default function App() {
           <Link to="/" className="logo-text">
             TradeMini
           </Link>
-          <nav className="flex items-center gap-3">
-            <span className="text-sm text-muted font-semibold">
+          <nav className="flex items-center gap-2 sm:gap-3">
+            <span className="max-w-[40vw] truncate text-xs sm:text-sm text-muted font-semibold text-right">
               {firstName || lastName
                 ? `${firstName ?? ""} ${lastName ?? ""}`.trim()
                 : ""}
             </span>
-            <button className="btn" onClick={toggle}>
-              {theme === "dark" ? "Light Mode" : "Dark Mode"}
+            <button
+              className="icon-btn text-lg"
+              onClick={toggle}
+              aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+            >
+              {theme === "dark" ? <FaSun /> : <FaMoon />}
             </button>
             {token ? (
               <>
                 <button
-                  className="btn"
+                  className="icon-btn text-lg"
                   onClick={() => {
                     logout();
                     navigate("/login");
                   }}
+                  aria-label="Logout"
                 >
-                  Logout
+                  <FaSignOutAlt />
                 </button>
               </>
             ) : (

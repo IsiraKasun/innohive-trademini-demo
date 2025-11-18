@@ -31,8 +31,8 @@ export default function CompetitionModal({
   const top5 = traders.slice(0, 5);
 
   return (
-    <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/60">
-      <div className="card w-full max-w-3xl p-8 relative">
+    <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/60 px-3 sm:px-4">
+      <div className="card w-full max-w-3xl p-4 sm:p-8 relative max-h-[90vh] overflow-y-auto">
         <button
           type="button"
           className="absolute right-4 top-4 text-black hover:text-white"

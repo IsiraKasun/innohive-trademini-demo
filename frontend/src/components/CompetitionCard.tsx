@@ -75,12 +75,14 @@ export default function CompetitionCard({
         </div>
       </div>
 
-      <div className="flex items-center justify-between mt-3">
-        <StatusCountdown startAt={data.startAt} endAt={data.endAt} />
-        <div className="flex items-center gap-2">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mt-3 gap-3">
+        <div className="flex justify-start sm:justify-start">
+          <StatusCountdown startAt={data.startAt} endAt={data.endAt} />
+        </div>
+        <div className="flex flex-wrap sm:flex-nowrap items-center gap-2 justify-start sm:justify-end">
           <button
             type="button"
-            className="btn"
+            className="btn w-full sm:w-auto"
             disabled={isJoining || isJoined}
             onClick={(e) => {
               e.stopPropagation();
@@ -94,7 +96,7 @@ export default function CompetitionCard({
           {isJoined && isActive && (
             <button
               type="button"
-              className="btn"
+              className="btn w-full sm:w-auto"
               onClick={(e) => {
                 e.stopPropagation();
                 navigate(`/dashboard/leaderboard/${data.id}`);

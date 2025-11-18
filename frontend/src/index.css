@@ -72,6 +72,17 @@ body {
   background-color: var(--btn-bg);
 }
 
+.icon-btn {
+  @apply inline-flex items-center justify-center rounded-full transition-colors;
+  padding: 0.25rem;
+  background-color: transparent;
+  color: var(--text);
+}
+
+.icon-btn:hover {
+  background-color: rgba(0, 0, 0, 0.06);
+}
+
 .card {
   @apply rounded-lg shadow-sm hover:shadow-md transition-all backdrop-blur;
   background-color: var(--card-bg);
