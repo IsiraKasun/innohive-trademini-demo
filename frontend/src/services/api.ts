@@ -35,7 +35,7 @@ export interface LeaderboardEntry { name: string; score: number }
 
 export async function login(username: string, password: string) {
   const { data } = await api.post('/login', { username, password });
-  return data as { token: string; username: string };
+  return data as { token: string; username: string; firstName: string; lastName: string };
 }
 
 export async function register(
@@ -44,7 +44,7 @@ export async function register(
   extra?: { firstName?: string; lastName?: string; email?: string; dob?: string }
 ) {
   const { data } = await api.post('/register', { username, password, ...extra });
-  return data as { token: string; username: string };
+  return data as { token: string; username: string; firstName: string; lastName: string };
 }
 
 export async function fetchCompetitions() {

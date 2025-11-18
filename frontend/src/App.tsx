@@ -3,7 +3,7 @@ import { useAuth } from "./hooks/useAuth";
 import { useTheme } from "./hooks/useTheme";
 
 export default function App() {
-  const { token, logout } = useAuth();
+  const { token, firstName, lastName, logout } = useAuth();
   const navigate = useNavigate();
   const { theme, toggle } = useTheme();
 
@@ -15,19 +15,26 @@ export default function App() {
             TradeMini
           </Link>
           <nav className="flex items-center gap-3">
+            <span className="text-sm text-muted font-semibold">
+              {firstName || lastName
+                ? `${firstName ?? ""} ${lastName ?? ""}`.trim()
+                : ""}
+            </span>
             <button className="btn" onClick={toggle}>
               {theme === "dark" ? "Light Mode" : "Dark Mode"}
             </button>
             {token ? (
-              <button
-                className="btn"
-                onClick={() => {
-                  logout();
-                  navigate("/login");
-                }}
-              >
-                Logout
-              </button>
+              <>
+                <button
+                  className="btn"
+                  onClick={() => {
+                    logout();
+                    navigate("/login");
+                  }}
+                >
+                  Logout
+                </button>
+              </>
             ) : (
               <div className="flex gap-2">
                 <Link className="btn" to="/login">

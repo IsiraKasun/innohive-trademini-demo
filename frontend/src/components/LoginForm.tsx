@@ -17,7 +17,7 @@ export default function LoginForm() {
     setLoading(true);
     try {
       const res = await login(username, password);
-      setLogin(res.token, res.username);
+      setLogin(res.token, res.username, res.firstName, res.lastName);
       toast.success("Logged in");
       navigate("/dashboard");
     } catch (e: any) {

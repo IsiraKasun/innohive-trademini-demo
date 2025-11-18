@@ -174,7 +174,7 @@ export default function RegisterForm() {
         email: form.email,
         dob,
       });
-      setLogin(res.token, res.username);
+      setLogin(res.token, res.username, res.firstName, res.lastName);
       toast.success("Registered successfully");
       navigate("/dashboard");
     } catch (e: any) {
