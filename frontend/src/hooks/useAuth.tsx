@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useMemo, useState } from 'react';
+import { closeSharedWebSocket } from './useWebSocket';
 
 interface AuthContextValue {
   token: string | null;
@@ -25,6 +26,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setUsername(null);
     localStorage.removeItem('token');
     localStorage.removeItem('username');
+    closeSharedWebSocket();
+
   };
 
   const value = useMemo(() => ({ token, username, login, logout }), [token, username]);

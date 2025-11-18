@@ -43,6 +43,7 @@ export default function StatusCountdown({ startAt, endAt }: Props) {
   const seconds = totalSeconds % 60;
 
   const parts: string[] = [];
+  
   if (days) parts.push(`${days}d`);
   if (hours || parts.length) parts.push(`${hours}h`);
   if (minutes || parts.length) parts.push(`${minutes}m`);
@@ -54,7 +55,7 @@ export default function StatusCountdown({ startAt, endAt }: Props) {
 
   return (
     <span
-      className={`px-2 py-3 rounded-lg w-100 min-w-32 text-center  whitespace-nowrap text-black ${
+      className={`px-2 py-3 rounded-lg w-100 min-w-48 text-center  whitespace-nowrap text-black ${
         isBeforeStart ? "bg-green-500" : "bg-red-600 "
       }`}
     >

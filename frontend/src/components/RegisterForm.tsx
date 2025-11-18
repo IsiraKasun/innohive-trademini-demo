@@ -126,13 +126,23 @@ export default function RegisterForm() {
     e.preventDefault();
     setSubmitted(true);
 
-    if (
-      !isFirstNameValid ||
-      !isLastNameValid ||
-      !isEmailFieldValid ||
-      !isUsernameValid
-    ) {
-      toast.error("Please fill in all required fields correctly");
+    if (!isFirstNameValid) {
+      toast.error("First name is required");
+      return;
+    }
+
+    if (!isLastNameValid) {
+      toast.error("Last name is required");
+      return;
+    }
+
+    if (!isEmailFieldValid) {
+      toast.error("Valid email is required");
+      return;
+    }
+
+    if (!isUsernameValid) {
+      toast.error("Username is required");
       return;
     }
 
@@ -251,7 +261,7 @@ export default function RegisterForm() {
             }
           />
           {form.password && (
-            <div className="text-xs text-muted flex items-center justify-between">
+            <div className="text-xs text-muted flex font-semibold items-center justify-between">
               <span>
                 Password strength:{" "}
                 <span
@@ -289,7 +299,7 @@ export default function RegisterForm() {
         />
 
         <div>
-          <div className="text-sm mb-1 text-muted">Date of birth</div>
+          <div className="text-sm mb-1 text-muted font-semibold">Date of birth</div>
           <div className="grid grid-cols-3 gap-2">
             <select
               className={fieldClass(isDobValid, form.dobDay, submitted)}

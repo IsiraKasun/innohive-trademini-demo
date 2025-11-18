@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import toast from "react-hot-toast";
 import {
+  api,
   Competition,
   fetchCompetitions,
   joinCompetition,
@@ -111,6 +112,29 @@ export default function Dashboard() {
     () => competitions.find((c) => c.id === selectedId) || null,
     [competitions, selectedId]
   );
+
+  useEffect(() => {
+    if (!selected) return;
+    const id = selected.id;
+
+    // If we already have data for this competition, use it.
+    if (leaderboards[id] && leaderboards[id].length > 0) return;
+
+    (async () => {
+      try {
+        const res = await api.get(`/competitions/${id}/leaderboard`);
+        const payload = res.data as { traders?: Trader[] };
+        const traders = payload.traders || [];
+        if (!traders.length) return;
+        setLeaderboards((prev) => ({
+          ...prev,
+          [id]: sortTraders(traders),
+        }));
+      } catch {
+        // If this fails, we'll still eventually get data from WebSocket snapshots.
+      }
+    })();
+  }, [selected, leaderboards]);
 
   const formatCountdown = (startAt: string, endAt: string) => {
     const startMs = new Date(startAt).getTime();
@@ -263,9 +287,6 @@ export default function Dashboard() {
                     style={{ width: `${joinProgress}%` }}
                   />
                 </div>
-                <p className="mt-3 text-xs text-slate-400">
-                  This will take about 2 seconds.
-                </p>
               </>
             )}
 
