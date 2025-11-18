@@ -47,6 +47,23 @@ function ensureSocket() {
   return ws;
 }
 
+export function closeSharedWebSocket() {
+  if (sharedSocket) {
+    try {
+      if (sharedSocket.readyState === WebSocket.OPEN || sharedSocket.readyState === WebSocket.CONNECTING) {
+        sharedSocket.close();
+      }
+    } catch {
+      // ignore close errors
+    }
+  }
+  sharedSocket = null;
+  sharedStatus = "closed";
+  messageSubscribers = [];
+  statusSubscribers.forEach((fn) => fn("closed"));
+  statusSubscribers = [];
+}
+
 export function useWebSocket(onMessage: (data: ScoreUpdate) => void) {
   const [status, setStatus] = useState<WebSocketStatus>(sharedStatus);
 
