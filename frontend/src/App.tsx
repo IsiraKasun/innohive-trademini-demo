@@ -24,7 +24,11 @@ export default function App() {
             <button
               className="icon-btn text-lg"
               onClick={toggle}
-              aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+              aria-label={
+                theme === "dark"
+                  ? "Switch to light mode"
+                  : "Switch to dark mode"
+              }
             >
               {theme === "dark" ? <FaSun /> : <FaMoon />}
             </button>
