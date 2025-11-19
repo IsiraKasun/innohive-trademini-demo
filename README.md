@@ -150,21 +150,21 @@ Ensure the frontend can reach the backend by setting `VITE_API_BASE` to your dep
 ### 3.1 Auth flow
 
 1. **Registration**
-   - User opens `/register`.
-   - Fills personal details, email, username, password, and date of birth.
-   - Frontend validates fields, password strength, and confirm-password match.
-   - On submit, `RegisterForm` calls `register()` from `services/api.ts` (`POST /register`).
-   - On success, backend returns `{ token, username }`. `useAuth` stores token + username in `localStorage` and navigates to `/dashboard`.
+   - User opens `/register` from the public navigation.
+   - Fills in required fields (e.g. first name, last name, username, password).
+   - Frontend validates required fields, password strength, and confirm-password match.
+   - On submit, `RegisterForm` calls `register()` from `services/api.ts`, which sends `POST /api/auth/register`.
+   - On success, the backend returns a JWT and user info (see section 5). `useAuth` stores the token and user metadata in `localStorage` and navigates to `/dashboard`.
 
 2. **Login**
    - User opens `/login`.
-   - `LoginForm` calls `login()` from `services/api.ts` (`POST /login`).
-   - On success, `useAuth` stores token + username and redirects to `/dashboard`.
+   - `LoginForm` calls `login()` from `services/api.ts`, which sends `POST /api/auth/login`.
+   - On success, `useAuth` stores the JWT + user details and redirects to `/dashboard`.
 
 3. **Protected routes (frontend + backend)**
    - `router.tsx` wraps `Dashboard` and `CompetitionLeaderboard` with `ProtectedRoute`.
    - `ProtectedRoute` checks for a non-null `token` from `useAuth` and redirects unauthenticated users to `/login`.
-   - On the backend, competition-related endpoints now require a valid JWT in the `Authorization: Bearer <token>` header (see section 5).
+   - On the backend, all competition-related endpoints under `/api/competitions` that require authentication expect a valid JWT in the `Authorization: Bearer <token>` header (see section 5).
 
 4. **Logout**
    - In `App.tsx`, clicking **Logout** calls `logout()` from `useAuth`, which clears token/username from state and `localStorage`, then navigates back to `/login`.
@@ -172,8 +172,8 @@ Ensure the frontend can reach the backend by setting `VITE_API_BASE` to your dep
 ### 3.2 Dashboard and competitions flow
 
 1. **Dashboard initial load**
-   - `Dashboard.tsx` fetches competitions via `fetchCompetitions()` (`GET /competitions`).
-   - Also calls `fetchJoinedCompetitions(username)` (`POST /my-competitions`) to show which competitions the current user joined.
+   - `Dashboard.tsx` fetches competitions via `fetchCompetitions()` (`GET /api/competitions`).
+   - Also calls `fetchJoinedCompetitions()` (`GET /api/competitions/joined`) to determine which competitions the authenticated user has joined.
    - User can filter competitions using a search input on the dashboard.
 
 2. **Joining a competition**
@@ -181,12 +181,12 @@ Ensure the frontend can reach the backend by setting `VITE_API_BASE` to your dep
    - A small join flow is implemented:
      - If unauthenticated, a toast prompts login.
      - Otherwise, a “joining” popup with a progress bar simulates processing.
-     - Then `joinCompetition(id, username)` (`POST /join`) is called.
-   - Backend adds the user to the competition’s `traders` array and persists it back to `competitions.json`.
+     - Then `joinCompetition(id)` is called, which sends `POST /api/competitions/{id}/join` with the user’s JWT.
+   - Backend validates the token, resolves the authenticated user, and stores a `Participant` record linking the user to the competition in the relational database.
 
 3. **Viewing a leaderboard**
    - From a competition, user can open the **Leaderboard** page: `/dashboard/leaderboard/:id`.
-   - `CompetitionLeaderboard.tsx` loads the initial leaderboard via `GET /competitions/:id/leaderboard`.
+   - `CompetitionLeaderboard.tsx` loads the initial leaderboard/participants via `GET /api/competitions/{id}/participants`.
    - `useWebSocket` subscribes to the shared WebSocket and updates the leaderboard in real time.
    - `Leaderboard.tsx` renders:
      - A highlighted **Champion** card for rank 1.
