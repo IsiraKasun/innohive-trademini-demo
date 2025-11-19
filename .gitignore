@@ -8,6 +8,7 @@ yarn-error.log*
 
 # Build outputs
 frontend/dist/
+backend/target/
 
 # Env files
 *.env
