@@ -5,6 +5,7 @@ import com.innohive.backendjava.repository.UserRepository;
 import com.innohive.backendjava.security.JwtService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -97,12 +98,16 @@ public class AuthController {
 
     public static class RegisterRequest {
         @NotBlank
+        @Size(max = 50, message = "username must be at most 50 characters long")
         private String username;
         @NotBlank
+        @Size(max = 100, message = "password must be at most 100 characters long")
         private String password;
         @NotBlank
+        @Size(max = 100, message = "first name must be at most 100 characters long")
         private String firstName;
         @NotBlank
+        @Size(max = 100, message = "last name must be at most 100 characters long")
         private String lastName;
 
         public String getUsername() {
@@ -140,8 +145,10 @@ public class AuthController {
 
     public static class LoginRequest {
         @NotBlank
+        @Size(max = 50, message = "username must be at most 50 characters long")
         private String username;
         @NotBlank
+        @Size(max = 100, message = "password must be at most 100 characters long")
         private String password;
 
         public String getUsername() {
