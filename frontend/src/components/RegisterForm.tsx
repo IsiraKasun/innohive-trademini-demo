@@ -8,13 +8,9 @@ import Loader from "./Loader";
 type FormState = {
   firstName: string;
   lastName: string;
-  email: string;
   username: string;
   password: string;
   confirmPassword: string;
-  dobDay: string;
-  dobMonth: string;
-  dobYear: string;
 };
 
 type FormAction =
@@ -24,13 +20,9 @@ type FormAction =
 const initialState: FormState = {
   firstName: "",
   lastName: "",
-  email: "",
   username: "",
   password: "",
   confirmPassword: "",
-  dobDay: "",
-  dobMonth: "",
-  dobYear: "",
 };
 
 function reducer(state: FormState, action: FormAction): FormState {
@@ -67,9 +59,6 @@ function years() {
 }
 
 const hasValue = (value: string) => value.trim().length > 0;
-
-const isEmailValid = (value: string) =>
-  !value || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
 
 const passwordInfo = (value: string) => {
   const hasDigit = /[0-9]/.test(value);
@@ -116,9 +105,6 @@ export default function RegisterForm() {
   const isFirstNameValid = hasValue(form.firstName);
   const isLastNameValid = hasValue(form.lastName);
   const isUsernameValid = hasValue(form.username);
-  const isEmailFieldValid = hasValue(form.email) && isEmailValid(form.email);
-  const isDobValid =
-    hasValue(form.dobDay) && hasValue(form.dobMonth) && hasValue(form.dobYear);
   const isConfirmPasswordValid =
     hasValue(form.confirmPassword) && form.confirmPassword === form.password;
 
@@ -136,18 +122,8 @@ export default function RegisterForm() {
       return;
     }
 
-    if (!isEmailFieldValid) {
-      toast.error("Valid email is required");
-      return;
-    }
-
     if (!isUsernameValid) {
       toast.error("Username is required");
-      return;
-    }
-
-    if (!isDobValid) {
-      toast.error("Please select date of birth");
       return;
     }
 
@@ -165,14 +141,9 @@ export default function RegisterForm() {
 
     setLoading(true);
     try {
-      const mm = String(form.dobMonth).padStart(2, "0");
-      const dd = String(form.dobDay).padStart(2, "0");
-      const dob = `${form.dobYear}-${mm}-${dd}`;
       const res = await register(form.username, form.password, {
         firstName: form.firstName,
         lastName: form.lastName,
-        email: form.email,
-        dob,
       });
       setLogin(res.token, res.username, res.firstName, res.lastName);
       toast.success("Registered successfully");
@@ -221,19 +192,7 @@ export default function RegisterForm() {
             }
           />
         </div>
-        <input
-          className={fieldClass(isEmailFieldValid, form.email, submitted)}
-          placeholder="Email"
-          type="email"
-          value={form.email}
-          onChange={(e) =>
-            dispatch({
-              type: "UPDATE_FIELD",
-              field: "email",
-              value: e.target.value,
-            })
-          }
-        />
+        {/* Email field removed as backend no longer uses email */}
         <input
           className={fieldClass(isUsernameValid, form.username, submitted)}
           placeholder="Username"
@@ -298,65 +257,7 @@ export default function RegisterForm() {
           }
         />
 
-        <div>
-          <div className="text-sm mb-1 text-muted font-semibold">Date of birth</div>
-          <div className="grid grid-cols-3 gap-2">
-            <select
-              className={fieldClass(isDobValid, form.dobDay, submitted)}
-              value={form.dobDay}
-              onChange={(e) =>
-                dispatch({
-                  type: "UPDATE_FIELD",
-                  field: "dobDay",
-                  value: e.target.value,
-                })
-              }
-            >
-              <option value="">Day</option>
-              {Array.from({ length: 31 }, (_, i) => i + 1).map((d) => (
-                <option key={d} value={d}>
-                  {d}
-                </option>
-              ))}
-            </select>
-            <select
-              className={fieldClass(isDobValid, form.dobMonth, submitted)}
-              value={form.dobMonth}
-              onChange={(e) =>
-                dispatch({
-                  type: "UPDATE_FIELD",
-                  field: "dobMonth",
-                  value: e.target.value,
-                })
-              }
-            >
-              <option value="">Month</option>
-              {months.map((m, idx) => (
-                <option key={m} value={idx + 1}>
-                  {m}
-                </option>
-              ))}
-            </select>
-            <select
-              className={fieldClass(isDobValid, form.dobYear, submitted)}
-              value={form.dobYear}
-              onChange={(e) =>
-                dispatch({
-                  type: "UPDATE_FIELD",
-                  field: "dobYear",
-                  value: e.target.value,
-                })
-              }
-            >
-              <option value="">Year</option>
-              {years().map((y) => (
-                <option key={y} value={y}>
-                  {y}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
+        {/* Date of birth fields removed as backend no longer uses dob */}
 
         <button className="btn w-full" disabled={loading}>
           {loading ? <Loader /> : "Create Account"}

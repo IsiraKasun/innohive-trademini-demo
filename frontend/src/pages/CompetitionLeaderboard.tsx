@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { api } from "../services/api";
 import Leaderboard, { Trader } from "../components/Leaderboard";
 import Loader from "../components/Loader";
-import { useWebSocket } from "../hooks/useWebSocket";
+import { closeSharedWebSocket, useWebSocket } from "../hooks/useWebSocket";
 import { ScoreUpdate } from "../services/ws";
 
 interface LeaderboardResponse {
@@ -29,10 +29,24 @@ export default function CompetitionLeaderboard() {
 
     (async () => {
       try {
-        const res = await api.get(`/competitions/${id}/leaderboard`);
-        const payload = res.data as LeaderboardResponse;
-        setData(payload);
-        setTraders(payload.traders || []);
+        const res = await api.get(`/api/competitions/${id}/participants`);
+        const payload = res.data as {
+          id: string;
+          name: string;
+          participants: { username: string; roi: number }[];
+        };
+
+        setData({ id: payload.id, name: payload.name, traders: [] });
+
+        // Initialize table with existing participants, using ROI as the score.
+        const initialTraders: Trader[] = (payload.participants || []).map(
+          (p) => ({
+            name: p.username,
+            score: p.roi ?? 0,
+          })
+        );
+        initialTraders.sort((a, b) => b.score - a.score);
+        setTraders(initialTraders);
       } catch (e) {
         setError("Failed to load leaderboard");
       } finally {
@@ -71,6 +85,14 @@ export default function CompetitionLeaderboard() {
   );
 
   useWebSocket(handleWsMessage);
+
+  // When leaving the leaderboard (unmount), close the shared WebSocket so it
+  // doesn't keep streaming updates while we're back on the dashboard.
+  useEffect(() => {
+    return () => {
+      closeSharedWebSocket();
+    };
+  }, []);
 
   if (loading) {
     return (

@@ -1,0 +1,19 @@
+server:
+  port: 4000
+
+spring:
+  datasource:
+    url: ${SUPABASE_DB_URL:SUPABASE_DB_URL}
+    username: ${SUPABASE_DB_USER:SUPABASE_DB_USER}
+    password: ${SUPABASE_DB_PASSWORD:SUPABASE_DB_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate.dialect: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: true
+    open-in-view: false
+
+jwt:
+  secret: ${JWT_SECRET:trading-mini-app-demo-with-spring-boot-backend-secret-key}
+  expiration-days: 7

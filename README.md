@@ -7,7 +7,7 @@ Monorepo with separate **frontend** and **backend** folders implementing a live 
 ## 1. Project Structure & Architecture
 
 - **Root**
-  - `backend/` – Node/Express API + WebSocket server, dummy data in JSON files.
+  - `backend/` – Java Spring Boot API + WebSocket server, backed by a relational database.
   - `frontend/` – React + Vite SPA consuming the API and WebSocket.
 
 ### 1.1 Frontend folder organization
@@ -53,49 +53,62 @@ Monorepo with separate **frontend** and **backend** folders implementing a live 
 
 ### 1.2 Backend folder organization
 
-`backend/src`
+`backend/src/main/java/com/innohive/backendjava`
 
-- **`server.js`**
-  - Express app with JSON body parsing and CORS.
-  - REST API endpoints (auth, competitions, join, leaderboard).
-  - WebSocket server (via `ws`) pushing regular score updates.
-  - In-memory store of competitions loaded from JSON, with scheduling relative to server start time.
+- **`TradeMiniBackend.java`**
+  - Spring Boot main application class.
+  - Enables scheduling for background tasks.
 
-`backend/data`
+- **`web/`**
+  - `AuthController.java` – `/api/auth/register`, `/api/auth/login` endpoints for registration and login.
+  - `CompetitionController.java` – `/api/competitions` listing, `/api/competitions/{id}/join`, `/api/competitions/{id}/participants`, `/api/competitions/joined`.
 
-- `competitions.json` – dummy competitions and initial traders with scores.
-- `users.json` – registered users with hashed passwords and profile metadata.
+- **`security/`**
+  - JWT-based authentication and authorization (filters, security configuration, token service).
+
+- **`model/`, `repository/`**
+  - JPA entities and Spring Data repositories for users, competitions, and participants.
+
+- **`websocket/`**
+  - `WebSocketConfig.java` and handlers exposing `/ws` for real-time leaderboard updates.
+
+`backend/src/main/resources`
+
+- Spring Boot configuration (e.g. database connection, JWT secret, CORS) and any other resource files.
 
 ## 2. Setup Instructions
 
-### 2.1 Backend – Development
+### 2.1 Backend – Development (Java)
 
 ```bash
 cd backend
-npm install
-npm start
+mvn spring-boot:run
 ```
 
-- Starts an Express server on **http://localhost:4000**.
-- REST API is available on `http://localhost:4000`.
-- WebSocket server listens on `ws://localhost:4000`.
+- Starts the Spring Boot server on **http://localhost:4000** by default (or the port configured in `application.properties`).
+- REST API is available under `http://localhost:4000/api`.
+- WebSocket endpoint is exposed at `ws://localhost:4000/ws`.
 
-Environment variables (optional):
+Typical configuration properties (via `backend/src/main/resources/application.properties` or environment variables):
 
-- `PORT` – server port (default: `4000`).
-- `JWT_SECRET` – secret for signing JWTs (default: `innohive`).
+- `server.port` – server port (default: `4000`).
+- Database URL/credentials (e.g. PostgreSQL).
+- JWT secret key for token signing.
+  
+> **Important:** Before starting the backend in development, ensure your local `application.yml` (or `application.properties`) points to the correct database (e.g. Supabase) with valid credentials. Do not commit real secrets to the repository.
 
-### 2.2 Backend – Production
+### 2.2 Backend – Production (Java)
 
-Typical Node production run:
+Build and run the Spring Boot jar:
 
 ```bash
 cd backend
-npm install --production
-PORT=4000 JWT_SECRET="your-strong-secret" node src/server.js
+mvn clean package
+java -jar target/backend-java-0.0.1-SNAPSHOT.jar
 ```
 
-You can run the backend behind a reverse proxy (Nginx/Traefik) and configure HTTPS there. Persistent data is stored in `backend/data` (see section 5).
+You can run the backend behind a reverse proxy (Nginx/Traefik) and configure HTTPS there.
+When deploying to production, configure database credentials and other sensitive values via environment variables or a secure configuration mechanism rather than committing them directly to `application.yml`.
 
 ### 2.3 Frontend – Development
 
@@ -193,21 +206,17 @@ Ensure the frontend can reach the backend by setting `VITE_API_BASE` to your dep
 The frontend uses Axios (`services/api.ts`) with a base URL `API_BASE` to call the backend.
 
 - All requests are JSON (`Content-Type: application/json`).
-- Primary flows:
-  - Auth (`/login`, `/register`).
-  - Competitions listing (`/competitions`).
-  - Join competition (`/join`).
-  - Fetch competitions joined by user (`/my-competitions`).
-  - Fetch specific leaderboard (`/competitions/:id/leaderboard`).
+- Primary flows (Java backend):
+  - Auth (`POST /api/auth/register`, `POST /api/auth/login`).
+  - Competitions listing (`GET /api/competitions`).
+  - Join competition (`POST /api/competitions/{id}/join`).
+  - Fetch competitions joined by user (`GET /api/competitions/joined`).
+  - Fetch participants for a competition (`GET /api/competitions/{id}/participants`).
 
 ### 4.2 WebSocket (real-time)
 
-- `useWebSocket` creates a single shared `WebSocket` connection per browser session to `ws://<API_HOST>:<PORT>`.
-- On connection, backend sends **snapshot** messages for each competition:
-  - `{ type: 'snapshot', competitionId, traders: [{ name, score }, ...] }`.
-- Every few seconds, backend randomly adjusts trader scores and broadcasts **score_update** messages:
-  - `{ type: 'score_update', competitionId, updates: [{ name, score }, ...] }`.
-- `useWebSocket` fans out each parsed `ScoreUpdate` to all subscribers.
+- `useWebSocket` creates a single shared `WebSocket` connection per browser session to `ws://<API_HOST>:<PORT>/ws`.
+- The Spring WebSocket handler pushes leaderboard updates for competitions to all connected clients.
 - `Dashboard.tsx` and `CompetitionLeaderboard.tsx` subscribe and update local state to keep leaderboards in sync.
 
 ---
@@ -218,66 +227,53 @@ All endpoints are relative to the backend base URL, e.g. `http://localhost:4000`
 
 ### 5.1 Auth
 
-- **POST `/register`**
-  - **Body**: `{ username, password, firstName, lastName, email, dob }`.
+- **POST `/api/auth/register`**
+  - **Body**: `{ username, password, firstName, lastName }`.
   - **Validations**:
-    - Required fields: `username`, `password`, `firstName`, `lastName`, `email`, `dob`.
-    - Email format.
-    - Min password length 6.
-    - Unique username and email.
-  - **Response (success)**: `{ token, username }` (JWT signed with `JWT_SECRET`).
+    - Required fields: `username`, `password`, `firstName`, `lastName`.
+    - Unique username.
+  - **Response (success)**: `{ token, username, firstName, lastName }` (JWT signed by the backend).
   - **Response (error)**: `{ errors: { field: message, ... } }` with status 400.
 
-- **POST `/login`**
+- **POST `/api/auth/login`**
   - **Body**: `{ username, password }`.
-  - Validates credentials against `users.json` (bcrypt password hash).
-  - **Response (success)**: `{ token, username }`.
+  - Validates credentials against the database (hashed passwords).
+  - **Response (success)**: `{ token, username, firstName, lastName }`.
   - **Response (error)**: `{ message: 'invalid credentials' }` (401) or `{ message: 'username and password required' }` (400).
 
-### 5.2 Competitions & leaderboards
+### 5.2 Competitions & participants
 
-- **GET `/competitions`**
+- **GET `/api/competitions`**
   - Returns a list of competitions:
-    - `{ competitions: [{ id, name, entryFee, prizePool, participants, startAt, endAt }] }`.
-  - `participants` is derived from the number of traders.
+  - `{ competitions: [{ id, name, entryFee, prizePool, participants, startAt, endAt }] }`.
+  - `participants` is derived from the number of participants in the database.
 
-- **POST `/my-competitions`**
-  - **Body**: `{ username }`.
-  - Returns IDs of competitions the user has joined:
-    - `{ competitionIds: string[] }`.
-
-- **POST `/join`**
-  - **Body**: `{ competitionId, username }`.
-  - Adds the user as a trader with initial score `0` if not already present.
-  - Persists updated competitions back to `backend/data/competitions.json`.
+- **POST `/api/competitions/{id}/join`**
+  - **Auth**: requires a valid JWT (`Authorization: Bearer <token>`).
+  - Adds the authenticated user as a participant in the competition if not already present.
   - **Response**: `{ success: true, participants: number }`.
 
-- **GET `/competitions/:id/leaderboard`**
-  - Returns the sorted leaderboard for a competition:
-  - `{ id, name, traders: [{ name, score }, ...] }` sorted by `score` descending.
+- **GET `/api/competitions/{id}/participants`**
+  - Returns participants of a competition:
+  - `{ id, name, participants: [{ username, firstName, lastName, roi, joinedAt }, ...] }`.
 
-## 6. Dummy Data & Persistence
+- **GET `/api/competitions/joined`**
+  - **Auth**: requires a valid JWT (`Authorization: Bearer <token>`).
+  - Returns IDs of competitions the authenticated user has joined:
+    - `{ competitionIds: string[] }`.
 
-### 6.1 Competitions and traders (`backend/data/competitions.json`)
+## 6. Data & Persistence
 
-- Contains an array of competitions with:
-  - `id`, `name`, `entryFee`, `prizePool`.
-  - `traders`: list of dummy traders with initial scores (positive/negative) for realistic leaderboards.
-- On backend startup:
-  - File is loaded into an in-memory `store`.
-  - Each competition gets `startAt` and `endAt` computed relative to server start time (some start immediately, others start in 1 hour or 1 day).
-- When a user joins a competition:
-  - Backend pushes `{ name: username, score: 0 }` into the competition’s `traders` array.
-  - Entire `store` is written back to `competitions.json` so progress survives restarts.
+The Java backend uses a relational database (e.g. PostgreSQL) via Spring Data JPA.
 
-### 6.2 Users (`backend/data/users.json`)
+- **Competitions**
+  - Stored as `Competition` entities with fields such as `id`, `name`, `entryFee`, `prizePool`, `startDate`, `endDate`.
+- **Users**
+  - Stored as `User` entities with hashed passwords and profile metadata.
+- **Participants**
+  - Stored as `Participant` entities linking users to competitions with fields like `roi` and `joinedAt`.
 
-- Created if it does not exist, with structure:
-  - `{ users: [{ username, passwordHash, firstName, lastName, email, dob, createdAt }, ...] }`.
-- Passwords are hashed using **bcrypt** before being saved.
-- Login validates the provided password with `bcrypt.compareSync`.
-
-> This project deliberately uses JSON files as a lightweight persistence layer instead of a database to simplify setup and keep the focus on API design, auth flow, and real-time UI.
+Database connection and credentials are configured via Spring Boot properties.
 
 ## 7. Technologies & Libraries
 
@@ -307,19 +303,22 @@ All endpoints are relative to the backend base URL, e.g. `http://localhost:4000`
 ### 7.2 Backend
 
 - **Runtime & framework**
-  - Node.js.
-  - Express – HTTP server and routing.
+  - Java 21.
+  - Spring Boot – HTTP server, routing, application configuration.
+
+- **Data & persistence**
+  - Spring Data JPA – repositories and entity mapping.
+  - Relational database such as PostgreSQL.
 
 - **Real-time**
-  - `ws` – WebSocket server, broadcasting snapshots and score updates.
+  - Spring WebSocket – WebSocket endpoint at `/ws` for leaderboard updates.
 
 - **Auth & security**
-  - `jsonwebtoken` – JWT creation for login/registration.
-  - `bcryptjs` – password hashing and verification.
+  - Spring Security – authentication and authorization.
+  - JWT-based tokens for stateless auth.
 
-- **Dev & utilities**
-  - `cors` – Cross-Origin Resource Sharing.
-  - Node core libs: `fs`, `path`, `http`, `url` – JSON data persistence and server wiring.
+- **Scheduling**
+  - Spring’s scheduling support for background tasks.
 
 ## 8. Notes on the Implementation Approach
 
@@ -328,8 +327,11 @@ All endpoints are relative to the backend base URL, e.g. `http://localhost:4000`
   - Clean separation of pages vs. reusable components.
   - Hooks (`useAuth`, `useTheme`, `useWebSocket`) to isolate and reusing concerns.
   - A themed layout with shared header/footer and consistent styling across pages.
+  - A mobile-responsive layout leveraging Tailwind’s responsive utilities to adapt dashboards and tables across screen sizes.
 - **Backend approach** focuses on:
-  - Clear, small set of REST endpoints that match the frontend flows.
-  - Lightweight JSON-based persistence (`competitions.json`, `users.json`) suitable for demos.
-  - A simple WebSocket broadcaster that continuously drives a dynamic leaderboard.
+  - Clear, small set of REST endpoints that match the frontend flows, implemented with Spring Boot.
+  - A relational data model for users, competitions, and participants via Spring Data JPA.
+  - A WebSocket endpoint that continuously drives a dynamic leaderboard.
+  - Supabase is used as the backing PostgreSQL database, managed via Spring Data JPA.
+  - Spring’s scheduling abstraction is used to periodically evaluate and update competition status based on the current time.
 - **Communication design** keeps the REST API responsible for CRUD operations and initial data, while WebSocket is used exclusively for live score streaming, making the UI feel responsive.

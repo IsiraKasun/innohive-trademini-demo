@@ -26,8 +26,9 @@ export default function StatusCountdown({ startAt, endAt }: Props) {
 
   if (now >= endMs) {
     return (
-      <span className="px-2 py-1 rounded-full bg-slate-900 text-xs text-slate-400">
-        Ended
+      <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-gradient-to-r from-red-600 via-red-500 to-rose-500 text-xs font-semibold tracking-wide text-white shadow-lg shadow-red-900/40 ring-1 ring-red-400/60">
+        <span className="inline-block h-1.5 w-1.5 rounded-full bg-white/80" />
+        ENDED
       </span>
     );
   }

@@ -4,6 +4,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import CompetitionLeaderboard from "./pages/CompetitionLeaderboard";
+import UpcomingCompetition from "./pages/UpcomingCompetition";
 import { useAuth } from "./hooks/useAuth";
 
 function ProtectedRoute({ children }: { children: JSX.Element }) {
@@ -33,6 +34,14 @@ export const router = createBrowserRouter([
         element: (
           <ProtectedRoute>
             <CompetitionLeaderboard />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: "dashboard/competition/:id",
+        element: (
+          <ProtectedRoute>
+            <UpcomingCompetition />
           </ProtectedRoute>
         ),
       },

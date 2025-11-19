@@ -8,7 +8,7 @@ interface Props {
   isJoining: boolean;
   isJoined: boolean;
   isActive: boolean;
-  onOpenDetails: (id: string) => void;
+  hasStarted: boolean;
 }
 
 export default function CompetitionCard({
@@ -17,7 +17,7 @@ export default function CompetitionCard({
   isJoining,
   isJoined,
   isActive,
-  onOpenDetails,
+  hasStarted,
 }: Props) {
   const navigate = useNavigate();
   const firstPrize = Math.round(data.prizePool * 0.5);
@@ -26,8 +26,15 @@ export default function CompetitionCard({
 
   return (
     <div
-      className="card p-6 flex flex-col gap-3 hover:-translate-y-1 transition-transform text-left w-full h-full"
-      onClick={() => onOpenDetails(data.id)}
+      className="card p-6 flex flex-col gap-3 hover:-translate-y-1 transition-transform text-left w-full h-full cursor-pointer"
+      onClick={() => {
+        // If competition has started or finished, go to leaderboard; if not started, go to upcoming details.
+        if (hasStarted) {
+          navigate(`/dashboard/leaderboard/${data.id}`);
+        } else {
+          navigate(`/dashboard/competition/${data.id}`);
+        }
+      }}
     >
       <div className="flex items-start justify-between gap-2">
         <div>
@@ -53,6 +60,9 @@ export default function CompetitionCard({
         <div>
           <div className="menu-sub-title text-sm mb-1 text-xl text-center">
             Prize pool
+          </div>
+          <div className="text-2xl font-semibold text-emerald-400 text-center mb-2">
+            ${data.prizePool.toLocaleString()}
           </div>
           <ul className="space-y-1 text-s">
             <li className="flex items-center justify-between bg-red-950/90 rounded px-2 py-1">
@@ -93,18 +103,6 @@ export default function CompetitionCard({
           >
             {isJoined ? "Joined" : isJoining ? "Joining…" : "Join"}
           </button>
-          {isJoined && isActive && (
-            <button
-              type="button"
-              className="btn w-full sm:w-auto"
-              onClick={(e) => {
-                e.stopPropagation();
-                navigate(`/dashboard/leaderboard/${data.id}`);
-              }}
-            >
-              View leaderboard
-            </button>
-          )}
         </div>
       </div>
     </div>

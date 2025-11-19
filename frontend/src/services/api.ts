@@ -34,30 +34,30 @@ export interface Competition {
 export interface LeaderboardEntry { name: string; score: number }
 
 export async function login(username: string, password: string) {
-  const { data } = await api.post('/login', { username, password });
+  const { data } = await api.post('/api/auth/login', { username, password });
   return data as { token: string; username: string; firstName: string; lastName: string };
 }
 
 export async function register(
   username: string,
   password: string,
-  extra?: { firstName?: string; lastName?: string; email?: string; dob?: string }
+  extra?: { firstName?: string; lastName?: string }
 ) {
-  const { data } = await api.post('/register', { username, password, ...extra });
+  const { data } = await api.post('/api/auth/register', { username, password, ...extra });
   return data as { token: string; username: string; firstName: string; lastName: string };
 }
 
 export async function fetchCompetitions() {
-  const { data } = await api.get('/competitions');
+  const { data } = await api.get('/api/competitions');
   return data as { competitions: Competition[] };
 }
 
 export async function joinCompetition(competitionId: string, username: string) {
-  const { data } = await api.post('/join', { competitionId, username });
+  const { data } = await api.post(`/api/competitions/${competitionId}/join`);
   return data as { success: boolean; participants: number };
 }
 
 export async function fetchJoinedCompetitions(username: string) {
-  const { data } = await api.post('/my-competitions', { username });
+  const { data } = await api.get('/api/competitions/joined');
   return data as { competitionIds: string[] };
 }
