@@ -21,7 +21,15 @@ export default function LoginForm() {
       toast.success("Logged in");
       navigate("/dashboard");
     } catch (e: any) {
-      toast.error(e?.response?.data?.message || "Login failed");
+      const data = e?.response?.data;
+      if (data?.errors && typeof data.errors === "object") {
+        const messages = Object.values<string>(data.errors).filter(Boolean);
+        if (messages.length) {
+          toast.error(messages.join(" | "));
+          return;
+        }
+      }
+      toast.error(data?.message || "Login failed");
     } finally {
       setLoading(false);
     }
@@ -32,6 +40,7 @@ export default function LoginForm() {
       <input
         className="input"
         placeholder="Username"
+        maxLength={50}
         value={username}
         onChange={(e) => setUsername(e.target.value)}
       />
@@ -39,6 +48,7 @@ export default function LoginForm() {
         className="input"
         placeholder="Password"
         type="password"
+        maxLength={100}
         value={password}
         onChange={(e) => setPassword(e.target.value)}
       />

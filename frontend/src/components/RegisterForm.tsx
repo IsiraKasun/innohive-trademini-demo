@@ -170,6 +170,7 @@ export default function RegisterForm() {
           <input
             className={fieldClass(isFirstNameValid, form.firstName, submitted)}
             placeholder="First name"
+            maxLength={100}
             value={form.firstName}
             onChange={(e) =>
               dispatch({
@@ -182,6 +183,7 @@ export default function RegisterForm() {
           <input
             className={fieldClass(isLastNameValid, form.lastName, submitted)}
             placeholder="Last name"
+            maxLength={100}
             value={form.lastName}
             onChange={(e) =>
               dispatch({
@@ -196,6 +198,7 @@ export default function RegisterForm() {
         <input
           className={fieldClass(isUsernameValid, form.username, submitted)}
           placeholder="Username"
+          maxLength={50}
           value={form.username}
           onChange={(e) =>
             dispatch({
@@ -210,6 +213,7 @@ export default function RegisterForm() {
             className={fieldClass(isPasswordValid, form.password, submitted)}
             placeholder="Password"
             type="password"
+            maxLength={100}
             value={form.password}
             onChange={(e) =>
               dispatch({
@@ -247,6 +251,7 @@ export default function RegisterForm() {
           )}
           placeholder="Confirm password"
           type="password"
+          maxLength={100}
           value={form.confirmPassword}
           onChange={(e) =>
             dispatch({
