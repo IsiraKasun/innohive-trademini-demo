@@ -12,7 +12,7 @@ public class ScoreUpdateScheduler {
         this.handler = handler;
     }
 
-    // Roughly match the Node.js interval (every 2 seconds)
+    // Send push updates roughly every 2 seconds
     @Scheduled(fixedRate = 2000)
     public void tick() {
         handler.broadcastRandomScoreUpdate();
